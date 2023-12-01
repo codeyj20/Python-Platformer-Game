@@ -110,7 +110,14 @@ class Player(pygame.sprite.Sprite):
 # Animate the sprite
     def update_sprite(self):
         sprite_sheet = "idle"
-        if self.x_vel != 0:
+        if self.y_vel < 0:
+            if self.jump_count == 1:
+                sprite_sheet = "jump"
+            elif self.jump_count == 2:
+                sprite_sheet == "double_jump"
+        elif self.y_vel > self.GRAVITY * 2: # Makes it to where more gravity is needed before fall state 
+            sprite_sheet == "fall"          # so it looks less glitchy
+        elif self.x_vel != 0:
             sprite_sheet = "run"
         
         sprite_sheet_name = sprite_sheet + "_" + self.direction
