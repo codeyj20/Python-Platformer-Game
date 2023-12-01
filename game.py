@@ -84,12 +84,21 @@ class Player(pygame.sprite.Sprite):
             self.animation_count = 0
     
     def loop(self, fps):
-    #    self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+        self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
         self.move(self.x_vel, self.y_vel)
 
         self.fall_count += 1
         self.update_sprite()
 
+    def landed(self):
+        self.fall_count = 0 # Stop adding gravity
+        self.y_vel = 0 # When landed on block, stop moving
+        self.jump_count = 0
+
+    def hit_head(self):
+        self.count = 0
+        self.y_vel += -1 # Reverse the velocity to move down because we're moving up
+        
 # Animate the sprite
     def update_sprite(self):
         sprite_sheet = "idle"
@@ -110,8 +119,24 @@ class Player(pygame.sprite.Sprite):
     def draw(self, win):
         win.blit(self.sprite, (self.rect.x, self.rect.y))
 
+# Vertical collisions
+def handle_vertical_collision(player, objects, dy): # dy = displacement y
+    collided_objects = []
+    for obj in objects:
+        if pygame.sprite.collide_mask(player, obj):
+            if dy > 0:
+                player.rect.bottom = obj.rect.top
+                player.landed()
+            elif dy < 0:
+                player.rect.top = obj.rect.bottom
+                player.hit_head()
+        
+        collided_objects.append(obj)
+
+    return collided_objects
+
 # Move the player
-def handle_move(player):
+def handle_move(player, objects):
     keys = pygame.key.get_pressed()
 
     player.x_vel = 0 # Only move when holding down the key
@@ -119,6 +144,8 @@ def handle_move(player):
         player.move_left(PLAYER_VEL)
     if keys[pygame.K_RIGHT]:
         player.move_right(PLAYER_VEL)
+
+    handle_vertical_collision(player, objects, player.y_vel)
 
 # Object class
 class Object(pygame.sprite.Sprite):
@@ -186,7 +213,7 @@ def main(window):
                 break
         
         player.loop(FPS)
-        handle_move(player)
+        handle_move(player, floor)
         draw(window, background, bg_image, player, floor)   
 
     pygame.quit()
