@@ -83,7 +83,6 @@ class Player(pygame.sprite.Sprite):
 
     def make_hit(self):
         self.hit = True
-        self.hit_count = 0
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -117,7 +116,7 @@ class Player(pygame.sprite.Sprite):
 
     def hit_head(self):
         self.count = 0
-        self.y_vel += -1 # Reverse the velocity to move down because we're moving up
+        self.y_vel *= -1 # Reverse the velocity to move down because we're moving up
         
 # Animate the sprite
     def update_sprite(self):
@@ -136,7 +135,8 @@ class Player(pygame.sprite.Sprite):
         
         sprite_sheet_name = sprite_sheet + "_" + self.direction
         sprites = self.SPRITES[sprite_sheet_name]
-        sprite_index = (self.animation_count // self.ANIMATION_DELAY) % len(sprites)
+        sprite_index = (self.animation_count // 
+                        self.ANIMATION_DELAY) % len(sprites)
         self.sprite = sprites[sprite_index]
         self.animation_count += 1
         self.update()
@@ -146,7 +146,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.sprite)
     
     def draw(self, win, offset_x):
-        win.blit(self.sprite, (self.rect.x, self.rect.y))
+        win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y))
 
 # Vertical collisions
 def handle_vertical_collision(player, objects, dy): # dy = displacement y
@@ -282,7 +282,7 @@ def main(window):
     fire = Fire(100, HEIGHT - block_size - 64, 16, 32)
     fire.on()
     floor = [Block(i * block_size, HEIGHT - block_size, block_size) 
-             for i in range(-WIDTH // block_size, WIDTH * 2 // block_size)]
+             for i in range(-WIDTH // block_size, (WIDTH * 2) // block_size)]
     objects = [*floor, Block(0, HEIGHT - block_size * 2, block_size),
                Block(block_size * 3, HEIGHT - block_size * 4, block_size), fire]
 
