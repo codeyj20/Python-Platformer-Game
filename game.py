@@ -83,7 +83,6 @@ class Player(pygame.sprite.Sprite):
 
     def make_hit(self):
         self.hit = True
-       # self.hit_count = 0
 
     def move_left(self, vel):
         self.x_vel = -vel
